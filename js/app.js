@@ -120,7 +120,7 @@ async function showLock(mode) {
   mode = mode || (has ? "unlock" : "create");
   const root = $("#root");
   root.innerHTML = `<div class="lock"><form class="lockcard" id="lockform" autocomplete="off">
-    <h2>Carry<span>over</span></h2>
+    <div class="lockmark"><span class="mark" aria-hidden="true"></span>Carryover</div>
     ${mode === "create" ? `
       <p>Your notebook lives only on this device, encrypted with a passphrase you choose. There is no account and no server.</p>
       <div class="field"><label for="p1">Choose a passphrase</label><input id="p1" type="password" minlength="10" required autocomplete="new-password"></div>
@@ -202,11 +202,11 @@ function render() {
   const openQs = S.doc.questions.filter(q => q.status === "open").length;
   root.innerHTML = `
     <header class="top">
-      <button class="brand" data-view="notebook" aria-label="Carryover home"><h1>Carry<span>over</span></h1></button>
-      <span class="lockchip" title="Encrypted on this device">🔒 on-device</span>
+      <button class="brand" data-view="notebook" aria-label="Carryover home"><span class="mark" aria-hidden="true"></span><span class="wordmark">Carryover</span></button>
+      <span class="lockchip" title="Encrypted on this device"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Encrypted on device</span>
       <nav class="nav" aria-label="Views">${NAV.map(([k, l]) => `<button data-view="${k}" aria-current="${S.view === k || (k === "notebook" && S.view === "note")}">${l}${k === "followups" && openQs ? ` · ${openQs}` : ""}</button>`).join("")}</nav>
       <div class="tools">
-        <button class="pill" data-act="palette" title="Quick lookup">⌕ Look up<span class="kbd">/</span></button>
+        <button class="pill" data-act="palette" title="Quick lookup"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg>Look up<span class="kbd">/</span></button>
         <button class="btn pink sm" data-view="capture">+ Add pages</button>
         <button class="btn ghost sm" data-act="lock">Lock</button>
       </div>
@@ -248,7 +248,7 @@ function tabsHtml() {
   const t = (key, label, n, cls = "", col = "") => `<button class="tab ${cls}" data-sec="${esc(key)}" ${key.startsWith("__") ? "" : `data-droptab="${esc(key)}"`} aria-current="${S.sec === key}" ${col ? `style="--tc:${col}"` : ""}><span>${esc(label)}</span><span class="n">${n}</span></button>`;
   return `<aside class="tabs" aria-label="Sections">
     ${t("__all", "All notes", S.doc.notes.length, "smart")}
-    ${pinned ? t("__pinned", "★ Pinned", pinned, "smart") : ""}
+    ${pinned ? t("__pinned", "Pinned", pinned, "smart") : ""}
     ${review ? t("__review", "To check", review, "smart") : ""}
     <hr>
     ${sortedSections().map(s => t(s.id, s.name, count(s.id), "", `var(--t${s.color})`)).join("")}
@@ -259,12 +259,12 @@ function tabsHtml() {
 function noteCard(n) {
   const u = unresolved(n);
   return `<button class="note" draggable="true" data-open="${n.id}" data-drag="${n.id}" style="--tc:${secColor(n.sectionId)}">
-    ${n.pinned ? `<span class="pin" aria-label="Pinned">★</span>` : ""}
+    ${n.pinned ? `<span class="pin">Pinned</span>` : ""}
     <span class="meta"><span class="chip" style="--tc:${secColor(n.sectionId)}">${esc(secName(n.sectionId))}</span><span class="mono">${esc(fmtDate(n.date))}</span></span>
     <h3>${esc(n.title.replace(/[⟦⟧]/g, ""))}</h3>
     <span class="excerpt">${esc(excerpt(n))}</span>
     <span class="meta">
-      ${n.ctx?.system ? `<span class="chip line">⚙ ${esc(n.ctx.system)}</span>` : ""}
+      ${n.ctx?.system ? `<span class="chip line">${esc(n.ctx.system)}</span>` : ""}
       ${n.ctx?.env && n.ctx.env !== "Any" ? `<span class="chip line">${esc(n.ctx.env)}</span>` : ""}
       ${n.ctx?.status === "Needs verification" ? `<span class="chip warn">Needs verification</span>` : n.ctx?.status === "Outdated" ? `<span class="chip bad">Outdated</span>` : ""}
       ${u ? `<span class="chip warn">${plural(u, "word")} to check</span>` : ""}
@@ -301,7 +301,7 @@ function viewNotebook() {
       </div>
     </div>
     <div class="toolbar">
-      <label class="search"><span aria-hidden="true">⌕</span><input id="q" type="search" placeholder="Filter these notes…" value="${esc(S.q)}" aria-label="Filter notes"></label>
+      <label class="search"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><input id="q" type="search" placeholder="Filter these notes…" value="${esc(S.q)}" aria-label="Filter notes"></label>
       <select id="groupby" aria-label="Organize by">
         ${[["section", "Organize: my sections"], ["system", "Group by system"], ["team", "Group by team"], ["env", "Group by environment"], ["status", "Group by status"], ["date", "Group by month written"]].map(([v, l]) => opt(v, S.groupBy, l)).join("")}
       </select>
@@ -330,16 +330,16 @@ function viewNote() {
     <section class="book" style="--tc:${secColor(n.sectionId)}">
       <div class="stack">
         <div class="row spread"><button class="lnk" data-view="notebook">← Back to notebook</button>
-          <div class="row"><button class="btn ghost sm" data-act="pin" data-id="${n.id}">${n.pinned ? "★ Unpin" : "☆ Pin"}</button><button class="btn sm" data-act="edit" data-id="${n.id}">Edit</button></div></div>
+          <div class="row"><button class="btn ghost sm" data-act="pin" data-id="${n.id}">${n.pinned ? "Unpin" : "Pin"}</button><button class="btn sm" data-act="edit" data-id="${n.id}">Edit</button></div></div>
         <div class="meta"><button class="chip" style="--tc:${secColor(n.sectionId)}" data-sec="${n.sectionId}">${esc(secName(n.sectionId))}</button><span class="mono">Written ${esc(fmtDate(n.date))}</span>${(n.tags || []).map(t => `<span class="chip line">#${esc(t)}</span>`).join("")}</div>
-        <h2 style="font-size:40px">${esc(n.title.replace(/[⟦⟧]/g, ""))}</h2>
+        <h2>${esc(n.title.replace(/[⟦⟧]/g, ""))}</h2>
         <div class="ctx" aria-label="Where this applies">
           ${CTX_FIELDS.map(([k, l]) => `<div><span class="lbl">${l}</span><b>${esc(c[k] || "—")}</b></div>`).join("")}
         </div>
         ${!c.system && !c.process ? `<div class="ribbon info"><span>Add context so future-you knows which system or process this applies to.</span><button class="btn sm" data-act="edit" data-id="${n.id}">Add context</button></div>` : ""}
         ${u ? `<div class="ribbon"><span>${plural(u, "word")} couldn't be read with confidence and ${u === 1 ? "is" : "are"} highlighted. Compare with the original page and fix in Edit.</span>${n.pageIds?.length ? `<button class="btn sm" data-act="viewpage" data-id="${n.pageIds[0]}">Open page</button>` : ""}</div>` : ""}
         <div class="body">${md(n.body)}</div>
-        ${(n.todos || []).length ? `<h3 style="font-size:24px;margin-top:8px">Action items</h3><ul class="todos">${n.todos.map((t, i) => `<li class="${t.done ? "done" : ""}"><label><input type="checkbox" ${t.done ? "checked" : ""} data-todo="${n.id}" data-i="${i}"><span>${esc(t.text)}</span></label></li>`).join("")}</ul>` : ""}
+        ${(n.todos || []).length ? `<h3 class="subhead" style="margin-top:8px">Action items</h3><ul class="todos">${n.todos.map((t, i) => `<li class="${t.done ? "done" : ""}"><label><input type="checkbox" ${t.done ? "checked" : ""} data-todo="${n.id}" data-i="${i}"><span>${esc(t.text)}</span></label></li>`).join("")}</ul>` : ""}
         <div class="row" style="margin-top:10px">
           <label class="field" style="flex:0 1 240px"><span class="lbl">Move to section</span><select id="movesec" data-move="${n.id}">${sortedSections().map(s => `<option value="${s.id}" ${s.id === n.sectionId ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></label>
           <button class="lnk danger" data-act="delnote" data-id="${n.id}" style="margin-top:18px">Delete note</button>
@@ -374,7 +374,7 @@ function viewNote() {
 function aiButton(act, id) {
   const st = act === "aiask" ? S.aiStatus.prompt : S.aiStatus.sum;
   if (st === "unavailable") return "";
-  return `<button class="btn ghost sm" data-act="${act}" data-id="${id || ""}">✨ ${act === "aiask" ? "Answer with on-device AI" : "Summarize with on-device AI"}${st !== "available" ? " (one-time model download)" : ""}</button>`;
+  return `<button class="btn ghost sm" data-act="${act}" data-id="${id || ""}">${act === "aiask" ? "Answer with on-device AI" : "Summarize with on-device AI"}${st !== "available" ? " (one-time model download)" : ""}</button>`;
 }
 function ctxInputs(prefix, c = {}) {
   const dl = f => `<datalist id="${prefix}-dl-${f}">${uniqueCtx(f).map(v => `<option value="${esc(v)}">`).join("")}</datalist>`;
@@ -399,7 +399,7 @@ function editNoteHtml(n) {
     <div class="field" id="ed-newsec-wrap" hidden><label for="ed-newsec">New section name</label><input id="ed-newsec"></div>
     <div class="field"><label for="ed-body">Note</label><textarea id="ed-body" class="transcript" style="min-height:280px">${esc(n.body)}</textarea>
       <span class="small muted">Use “- ” for bullets, “## ” for sub-headings, **bold** for key terms. Words in ⟦ ⟧ were hard to read; fix and remove the brackets. Lines ending in “?” become questions, lines starting with “TODO:” become action items.</span></div>
-    <h3 style="font-size:24px">Where this applies</h3>
+    <h3 class="subhead">Where this applies</h3>
     ${ctxInputs("ed", n.ctx)}
     <div class="field"><label for="ed-tags">Tags (comma separated)</label><input id="ed-tags" value="${esc((n.tags || []).join(", "))}"></div>
   </form></section>`;
@@ -450,7 +450,7 @@ function viewCapture() {
 function captureEdit() {
   const c = S.cap;
   return `<section class="book"><div class="stack">
-    <div class="row spread"><div><h2 style="font-size:36px">Check the text</h2><p class="muted small">Fix anything misread, then mark where each topic starts.</p></div>
+    <div class="row spread"><div><h2>Check the text</h2><p class="muted small">Fix anything misread, then mark where each topic starts.</p></div>
       <div class="row"><button class="btn ghost" data-act="capback">Back</button><button class="btn pink" data-act="tofile">Next: file notes →</button></div></div>
     <div class="ribbon info"><span>Put <b>---</b> on its own line wherever a new topic starts. Each part becomes its own note. “Suggest breaks” guesses from headings.</span></div>
     ${c.shots.map((s, i) => {
@@ -471,7 +471,7 @@ function captureFile() {
   const c = S.cap;
   const kept = c.drafts.filter(d => d.include).length;
   return `<section class="book"><div class="stack">
-    <div class="row spread"><div><h2 style="font-size:36px">File ${plural(c.drafts.length, "note")}</h2><p class="muted small">Pick a section and say where each note applies. Suggestions come from what's already in each section.</p></div>
+    <div class="row spread"><div><h2>File ${plural(c.drafts.length, "note")}</h2><p class="muted small">Pick a section and say where each note applies. Suggestions come from what's already in each section.</p></div>
       <div class="row"><button class="btn ghost" data-act="capback2">Back</button><button class="btn pink" data-act="savedrafts" ${kept ? "" : "disabled"}>Save ${plural(kept, "note")}</button></div></div>
     ${c.drafts.length > 1 ? `<div class="ribbon info"><span>Same context for all? Fill in the first note, then copy it to the rest.</span><button class="btn sm" data-act="ctxall">Copy first note's context to all</button></div>` : ""}
     ${c.drafts.map((d, i) => `<div class="draft ${d.include ? "" : "off"}">
@@ -586,15 +586,15 @@ function viewAsk() {
     const nothing = !lines.length && !terms.length && !qa.length && !noteHits.length;
     results = `
       ${terms.length ? `<div class="panel"><h3>Definitions</h3><ul class="list">${terms.map(g => `<li><b>${esc(g.term)}</b>${g.system ? ` <span class="chip line">${esc(g.system)}</span>` : ""}: ${esc(g.meaning)}</li>`).join("")}</ul></div>` : ""}
-      ${lines.length ? `<div class="stack"><h3 style="font-size:26px">What your notes say</h3>${lines.map(l => `<div class="hitline"><div class="body">${md(l.line, { hl: qToks })}</div>
-        <div class="meta"><button class="lnk" data-open="${l.note.id}" style="padding:0"><b>${esc(l.note.title)}</b></button><span class="chip" style="--tc:${secColor(l.note.sectionId)}">${esc(secName(l.note.sectionId))}</span>${l.note.ctx?.system ? `<span class="chip line">⚙ ${esc(l.note.ctx.system)}</span>` : ""}${l.note.ctx?.env ? `<span class="chip line">${esc(l.note.ctx.env)}</span>` : ""}${l.note.ctx?.status === "Needs verification" ? `<span class="chip warn">Needs verification</span>` : ""}</div></div>`).join("")}</div>` : ""}
+      ${lines.length ? `<div class="stack"><h3 class="subhead">What your notes say</h3>${lines.map(l => `<div class="hitline"><div class="body">${md(l.line, { hl: qToks })}</div>
+        <div class="meta"><button class="lnk" data-open="${l.note.id}" style="padding:0"><b>${esc(l.note.title)}</b></button><span class="chip" style="--tc:${secColor(l.note.sectionId)}">${esc(secName(l.note.sectionId))}</span>${l.note.ctx?.system ? `<span class="chip line">${esc(l.note.ctx.system)}</span>` : ""}${l.note.ctx?.env ? `<span class="chip line">${esc(l.note.ctx.env)}</span>` : ""}${l.note.ctx?.status === "Needs verification" ? `<span class="chip warn">Needs verification</span>` : ""}</div></div>`).join("")}</div>` : ""}
       ${qa.length ? `<div class="panel"><h3>Answered questions</h3><ul class="list">${qa.map(q => `<li><b>${esc(q.q)}</b><br><span class="small">${esc(q.answer)}</span></li>`).join("")}</ul></div>` : ""}
       ${noteHits.length ? `<div class="panel"><h3>Notes to read</h3><ul class="list">${noteHits.map(n => `<li><button class="lnk" data-open="${n.id}" style="padding:0"><b>${esc(n.title)}</b></button> <span class="small muted">${esc(secName(n.sectionId))}</span></li>`).join("")}</ul></div>` : ""}
       ${aiButton("aiask") && !nothing ? `<div class="panel"><h3>Written answer</h3>${aiButton("aiask")}<div id="aiout" class="body">${a.aiText ? md(a.aiText) : ""}</div></div>` : ""}
       <div class="ribbon ${nothing ? "" : "info"}"><span>${nothing ? "Your notes don't cover this yet." : "Not what you needed?"} Save it as a question to ask someone.</span><button class="btn sm" data-act="asklater">Add to Follow-ups</button></div>`;
   }
   return `<section class="book"><div class="stack" style="max-width:820px">
-    <div><h2 style="font-size:38px">Ask your notes</h2><p class="muted small">Finds the exact lines that answer your question, with where they apply. Everything runs on this device.</p></div>
+    <div><h2>Ask your notes</h2><p class="muted small">Finds the exact lines that answer your question, with where they apply. Everything runs on this device.</p></div>
     <form id="askform" class="stack">
       <div class="field"><label for="askq">Question</label><input id="askq" class="inp" value="${esc(a.q)}" placeholder="When is the CAB cutoff?" autocomplete="off"></div>
       <div class="row"><button class="btn pink" type="submit">Find answer</button>
@@ -614,9 +614,9 @@ function viewFollowups() {
     ${q.answer ? `<div class="body small">${md(q.answer)}</div>` : ""}
     <div class="row"><button class="lnk" data-act="answerq" data-id="${q.id}">${q.answer ? "Edit answer" : "Answer"}</button><button class="lnk danger" data-act="delq" data-id="${q.id}">Remove</button></div></div>`; };
   return `<section class="book"><div class="stack" style="max-width:860px">
-    <div class="row spread"><div><h2 style="font-size:38px">Follow-ups</h2><p class="muted small">Questions to ask your team, and things you said you'd do.</p></div><button class="btn pink" data-act="addq">+ Question</button></div>
+    <div class="row spread"><div><h2>Follow-ups</h2><p class="muted small">Questions to ask your team, and things you said you'd do.</p></div><button class="btn pink" data-act="addq">+ Question</button></div>
     <div class="row">${tab("questions", `Questions · ${open.length} open`)}${tab("todos", `Action items · ${todos.filter(x => !x.t.done).length}`)}</div>
-    ${S.fu === "questions" ? (qs.length ? `${open.map(qItem).join("")}${done.length ? `<h3 style="font-size:26px;margin-top:10px">Answered</h3>${done.map(qItem).join("")}` : ""}` : `<div class="empty"><h3>No questions yet</h3><p class="muted">Lines in your notes that end in “?” show up here automatically.</p></div>`)
+    ${S.fu === "questions" ? (qs.length ? `${open.map(qItem).join("")}${done.length ? `<h3 class="subhead" style="margin-top:10px">Answered</h3>${done.map(qItem).join("")}` : ""}` : `<div class="empty"><h3>No questions yet</h3><p class="muted">Lines in your notes that end in “?” show up here automatically.</p></div>`)
       : (todos.length ? `<ul class="todos">${todos.sort((a, b) => a.t.done - b.t.done).map(({ n, t, i }) => `<li class="${t.done ? "done" : ""}"><label><input type="checkbox" ${t.done ? "checked" : ""} data-todo="${n.id}" data-i="${i}"><span>${esc(t.text)}</span></label>
           <span class="small muted" style="margin-left:26px">from <button class="lnk" data-open="${n.id}" style="padding:0">${esc(n.title)}</button></span></li>`).join("")}</ul>`
         : `<div class="empty"><h3>No action items</h3><p class="muted">Start a line with “TODO:” or “[ ]” and it lands here.</p></div>`)}
@@ -630,9 +630,9 @@ function viewGlossary() {
   const undef = T.undefinedTerms(S.doc.notes, S.doc.glossary).slice(0, 18);
   const uses = g => S.doc.notes.filter(n => (n.title + " " + n.body).includes(g.term)).length;
   return `<section class="book"><div class="stack" style="max-width:900px">
-    <div class="row spread"><div><h2 style="font-size:38px">Glossary</h2><p class="muted small">Team acronyms and jargon. Defined terms are underlined in every note; tap one to see what it means.</p></div><button class="btn pink" data-act="addterm">+ Term</button></div>
+    <div class="row spread"><div><h2>Glossary</h2><p class="muted small">Team acronyms and jargon. Defined terms are underlined in every note; tap one to see what it means.</p></div><button class="btn pink" data-act="addterm">+ Term</button></div>
     ${undef.length ? `<div class="panel"><h3>Used in your notes, not defined yet</h3><div class="meta">${undef.map(t => `<button class="chip warn" data-define="${esc(t.term)}">+ ${esc(t.term)} <span class="mono">×${t.count}</span></button>`).join("")}</div></div>` : ""}
-    <label class="search" style="flex:0 1 auto;max-width:360px"><span aria-hidden="true">⌕</span><input id="glossq" type="search" placeholder="Find a term…" value="${esc(S.glossQ)}"></label>
+    <label class="search" style="flex:0 1 auto;max-width:360px"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5"/><path d="M10.5 10.5 14 14"/></svg><input id="glossq" type="search" placeholder="Find a term…" value="${esc(S.glossQ)}"></label>
     ${list.length ? `<div class="cols">${list.map(g => `<div class="card" id="term-${g.id}"><div class="row spread"><h4>${esc(g.term)}</h4><span class="mono">${uses(g)} note${uses(g) === 1 ? "" : "s"}</span></div>
       ${g.system ? `<span class="chip line">applies to ${esc(g.system)}</span>` : ""}<p class="small">${esc(g.meaning)}</p>
       <div class="row"><button class="lnk" data-act="editterm" data-id="${g.id}">Edit</button><button class="lnk" data-act="termnotes" data-term="${esc(g.term)}">Notes using it</button><button class="lnk danger" data-act="delterm" data-id="${g.id}">Delete</button></div></div>`).join("")}</div>`
@@ -657,12 +657,12 @@ function viewContext() {
   const none = by.get("") || [];
   const chips = (ns, f) => [...new Set(ns.map(n => n.ctx?.[f]).filter(Boolean))].map(v => `<span class="chip line">${esc(v)}</span>`).join("") || `<span class="small muted">—</span>`;
   return `<section class="book"><div class="stack">
-    <div><h2 style="font-size:38px">Context map</h2><p class="muted small">What applies to what: every system you've taken notes on, with its teams, processes, environments, terms and open questions.</p></div>
+    <div><h2>Context map</h2><p class="muted small">What applies to what: every system you've taken notes on, with its teams, processes, environments, terms and open questions.</p></div>
     ${systems.length ? `<div class="cols">${systems.map(sys => {
       const ns = by.get(sys); const terms = S.doc.glossary.filter(g => g.system === sys);
       const oq = S.doc.questions.filter(q => q.status === "open" && ns.some(n => n.id === q.noteId)).length;
       const verify = ns.filter(n => n.ctx?.status === "Needs verification").length;
-      return `<div class="card"><div class="row spread"><h4>⚙ ${esc(sys)}</h4><span class="mono">${plural(ns.length, "note")}</span></div>
+      return `<div class="card"><div class="row spread"><h4>${esc(sys)}</h4><span class="mono">${plural(ns.length, "note")}</span></div>
         <div><span class="lbl">Teams</span><div class="meta">${chips(ns, "team")}</div></div>
         <div><span class="lbl">Processes</span><div class="meta">${chips(ns, "process")}</div></div>
         <div><span class="lbl">Environments</span><div class="meta">${chips(ns, "env")}</div></div>
@@ -680,7 +680,7 @@ function viewContext() {
 function viewSettings() {
   const st = S.doc.settings;
   return `<section class="book"><div class="stack" style="max-width:760px">
-    <h2 style="font-size:38px">Settings & security</h2>
+    <h2>Settings & security</h2>
     <div class="panel"><h3>How your data is kept</h3>
       <ul style="margin:0;padding-left:18px" class="small">
         <li>Stored only in this browser on this device, in IndexedDB.</li>
@@ -717,7 +717,7 @@ function viewBrief() {
   const withCtx = S.doc.notes.filter(n => n.ctx?.system).length;
   const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "–";
   return `<section class="book"><div class="brief">
-    <div><h2 style="font-size:40px">Carryover · product brief</h2><p class="muted small">v1 · local-first · written from the PM seat</p></div>
+    <div><h2>Carryover · product brief</h2><p class="muted small">v1 · local-first · written from the PM seat</p></div>
     <section><h3><span class="num">1</span>Problem</h3><p>New joiners take knowledge transfer on paper, a fresh page each day. After a month, the answer to “how do we release?” is spread across pages and weeks with no index, and half the notes don't say which system they're about.</p></section>
     <section><h3><span class="num">2</span>Principles</h3><ul>
       <li><b>Private by construction.</b> KT notes are sensitive. Data never leaves the device, so there's nothing to leak and nothing to approve.</li>
@@ -829,8 +829,8 @@ function palUpdate(q) {
     palResults = recent.map(n => ({ kind: "note", ref: n.id, title: n.title, sub: secName(n.sectionId) }));
   } else palResults = index().search(q).slice(0, 12);
   palSel = 0;
-  const icon = { note: "📄", term: "📖", question: "💬" };
-  box.innerHTML = palResults.length ? (q.trim() ? "" : `<p class="small muted" style="padding:6px 12px">Recently edited</p>`) + palResults.map((r, i) => `<button class="res" role="option" aria-selected="${i === palSel}" data-pal="${i}"><b>${icon[r.kind]} ${esc(r.title)}</b><span class="muted">${esc(r.sub || "")}</span></button>`).join("")
+  const icon = { note: "Note", term: "Term", question: "Q&A" };
+  box.innerHTML = palResults.length ? (q.trim() ? "" : `<p class="small muted" style="padding:6px 12px">Recently edited</p>`) + palResults.map((r, i) => `<button class="res" role="option" aria-selected="${i === palSel}" data-pal="${i}"><b><span class="kind">${icon[r.kind]}</span>${esc(r.title)}</b><span class="muted">${esc(r.sub || "")}</span></button>`).join("")
     : `<p class="muted" style="padding:14px">${q.trim() ? "No matches. Try fewer words." : "No notes yet."}</p>`;
 }
 function palPick(i) {
@@ -1107,5 +1107,5 @@ addEventListener("pagehide", () => { if (S.doc && vault.isUnlocked()) vault.put(
 
 /* ============ boot ============ */
 if (!window.isSecureContext || !crypto?.subtle || !window.indexedDB) {
-  $("#root").innerHTML = `<div class="lock"><div class="lockcard"><h2>Carry<span>over</span></h2><p>This browser can't run Carryover securely. Open it over https in a current version of Safari, Chrome, Edge or Firefox, and not in a private window.</p></div></div>`;
+  $("#root").innerHTML = `<div class="lock"><div class="lockcard"><div class="lockmark"><span class="mark" aria-hidden="true"></span>Carryover</div><p>This browser can't run Carryover securely. Open it over https in a current version of Safari, Chrome, Edge or Firefox, and not in a private window.</p></div></div>`;
 } else showLock();

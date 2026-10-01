@@ -73,5 +73,5 @@ js/vault.js             encryption + IndexedDB storage
 js/text.js              summaries, suggestions, similarity, splitting
 js/ocr.js               on-device text recognition
 js/ai.js                optional Chrome on-device AI
-vendor/                 Tesseract.js (Apache-2.0), MiniSearch (MIT), fonts (OFL)
+vendor/                 Tesseract.js (Apache-2.0), MiniSearch (MIT), IBM Plex fonts (OFL)
 ```
