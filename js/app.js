@@ -120,7 +120,7 @@ async function showLock(mode) {
   mode = mode || (has ? "unlock" : "create");
   const root = $("#root");
   root.innerHTML = `<div class="lock"><form class="lockcard" id="lockform" autocomplete="off">
-    <div class="lockmark"><span class="mark" aria-hidden="true"></span>Carryover</div>
+    <div class="lockmark">Carry<em>over</em></div>
     ${mode === "create" ? `
       <p>Your notebook lives only on this device, encrypted with a passphrase you choose. There is no account and no server.</p>
       <div class="field"><label for="p1">Choose a passphrase</label><input id="p1" type="password" minlength="10" required autocomplete="new-password"></div>
@@ -202,7 +202,7 @@ function render() {
   const openQs = S.doc.questions.filter(q => q.status === "open").length;
   root.innerHTML = `
     <header class="top">
-      <button class="brand" data-view="notebook" aria-label="Carryover home"><span class="mark" aria-hidden="true"></span><span class="wordmark">Carryover</span></button>
+      <button class="brand" data-view="notebook" aria-label="Carryover home"><span class="wordmark">Carry<em>over</em></span></button>
       <span class="lockchip" title="Encrypted on this device"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>Encrypted on device</span>
       <nav class="nav" aria-label="Views">${NAV.map(([k, l]) => `<button data-view="${k}" aria-current="${S.view === k || (k === "notebook" && S.view === "note")}">${l}${k === "followups" && openQs ? ` · ${openQs}` : ""}</button>`).join("")}</nav>
       <div class="tools">
@@ -717,7 +717,7 @@ function viewBrief() {
   const withCtx = S.doc.notes.filter(n => n.ctx?.system).length;
   const pct = (a, b) => b ? Math.round(a / b * 100) + "%" : "–";
   return `<section class="book"><div class="brief">
-    <div><h2>Carryover · product brief</h2><p class="muted small">v1 · local-first · written from the PM seat</p></div>
+    <div><h2>Product <em>brief</em></h2><p class="muted small">v1 · local-first · written from the PM seat</p></div>
     <section><h3><span class="num">1</span>Problem</h3><p>New joiners take knowledge transfer on paper, a fresh page each day. After a month, the answer to “how do we release?” is spread across pages and weeks with no index, and half the notes don't say which system they're about.</p></section>
     <section><h3><span class="num">2</span>Principles</h3><ul>
       <li><b>Private by construction.</b> KT notes are sensitive. Data never leaves the device, so there's nothing to leak and nothing to approve.</li>
@@ -1107,5 +1107,5 @@ addEventListener("pagehide", () => { if (S.doc && vault.isUnlocked()) vault.put(
 
 /* ============ boot ============ */
 if (!window.isSecureContext || !crypto?.subtle || !window.indexedDB) {
-  $("#root").innerHTML = `<div class="lock"><div class="lockcard"><div class="lockmark"><span class="mark" aria-hidden="true"></span>Carryover</div><p>This browser can't run Carryover securely. Open it over https in a current version of Safari, Chrome, Edge or Firefox, and not in a private window.</p></div></div>`;
+  $("#root").innerHTML = `<div class="lock"><div class="lockcard"><div class="lockmark">Carry<em>over</em></div><p>This browser can't run Carryover securely. Open it over https in a current version of Safari, Chrome, Edge or Firefox, and not in a private window.</p></div></div>`;
 } else showLock();
